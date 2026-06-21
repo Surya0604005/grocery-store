@@ -18,17 +18,42 @@ import Checkout from "./pages/Checkout";
 
 import Success from "./pages/Success";
 
+import { Navigate } from "react-router-dom";
+
+function ProtectedRoute({ children }) {
+  const user = localStorage.getItem("user");
+
+  return user ? children : <Navigate to="/login" />;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            localStorage.getItem("user") ? <Home /> : <Navigate to="/login" />
+          }
+        />
 
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={
+            localStorage.getItem("user") ? <Navigate to="/" /> : <Login />
+          }
+        />
 
         <Route path="/products" element={<Products />} />
 
-        <Route path="/manage-products" element={<ManageProducts />} />
+        <Route
+          path="/manage-products"
+          element={
+            <ProtectedRoute>
+              <ManageProducts />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/wishlist" element={<Wishlist />} />
 
@@ -36,7 +61,14 @@ function App() {
 
         <Route path="/category/:categoryName" element={<CategoryProducts />} />
 
-        <Route path="/checkout" element={<Checkout />} />
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path="/success" element={<Success />} />
       </Routes>

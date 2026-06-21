@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+
+import api from "../services/api";
+
 import { useContext } from "react";
 
 import { ProductContext } from "../context/ProductContext";
@@ -5,43 +9,23 @@ import { ProductContext } from "../context/ProductContext";
 import { FaHeart } from "react-icons/fa";
 
 function ProductCard({
-  search,
+  search = "",
 
-  selectedCategory,
+  selectedCategory = "All",
 }) {
-  const products = [
-    {
-      id: 1,
-      name: "Milk",
-      category: "Dairy",
-      price: 60,
-      image: "/milk.png",
-    },
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    api
+      .get("/products")
 
-    {
-      id: 2,
-      name: "Bread",
-      category: "Bakery",
-      price: 40,
-      image: "/bread.png",
-    },
+      .then((response) => {
+        setProducts(response.data);
+      })
 
-    {
-      id: 3,
-      name: "Apple",
-      category: "Fruits",
-      price: 120,
-      image: "/apple.png",
-    },
-
-    {
-      id: 4,
-      name: "Soft Drink",
-      category: "Drinks",
-      price: 80,
-      image: "/drink.png",
-    },
-  ];
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   const {
     wishlist,

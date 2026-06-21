@@ -1,87 +1,109 @@
 import Navbar from "../components/Navbar";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Footer from "../components/Footer";
 
+import api from "../services/api";
+
 function ManageProducts() {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
+  const [name, setName] = useState("");
 
-      name: "Milk",
+  const [category, setCategory] = useState("");
 
-      category: "Dairy",
+  const [price, setPrice] = useState("");
 
-      price: 60,
+  const [image, setImage] = useState("");
 
-      quantity: 20,
-    },
+  const [products, setProducts] = useState([]);
 
-    {
-      id: 2,
+  const fetchProducts = () => {
+    api
 
-      name: "Bread",
+      .get("/products")
 
-      category: "Bakery",
+      .then((response) => {
+        setProducts(response.data);
+      })
 
-      price: 40,
-
-      quantity: 15,
-    },
-  ]);
-
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
-  const updateProduct = () => {
-    const updatedProducts = products.map((product) =>
-      product.id === selectedProduct.id ? selectedProduct : product,
-    );
-
-    setProducts(updatedProducts);
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
-  const [newProduct, setNewProduct] = useState({
-    name: "",
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
-    category: "",
+  const handleSubmit = async () => {
+    try {
+      await api.post("/products", {
+        name,
 
-    price: "",
+        category,
 
-    quantity: "",
-  });
+        price: Number(price),
 
-  const deleteProduct = (id) => {
-    const filteredProducts = products.filter((product) => product.id !== id);
+        image,
+      });
 
-    setProducts(filteredProducts);
+      alert("Product added successfully");
 
-    if (selectedProduct?.id === id) {
-      setSelectedProduct(null);
+      fetchProducts();
+
+      setName("");
+
+      setCategory("");
+
+      setPrice("");
+
+      setImage("");
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  const addProduct = () => {
-    const product = {
-      id: Date.now(),
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-      ...newProduct,
-    };
+  const updateProduct = async () => {
+    try {
+      await api.put(
+        `/products/${selectedProduct.id}`,
 
-    setProducts([...products, product]);
+        {
+          name: selectedProduct.name,
 
-    setNewProduct({
-      name: "",
+          category: selectedProduct.category,
 
-      category: "",
+          price: Number(selectedProduct.price),
 
-      price: "",
+          image: selectedProduct.image,
+        },
+      );
 
-      quantity: "",
-    });
+      fetchProducts();
+
+      setSelectedProduct(null);
+
+      alert("Updated successfully");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  const [showAddForm, setShowAddForm] = useState(false);
+  const deleteProduct = async (id) => {
+    try {
+      await api.delete(`/products/${id}`);
+
+      fetchProducts();
+
+      if (selectedProduct?.id === id) {
+        setSelectedProduct(null);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -90,13 +112,41 @@ function ManageProducts() {
       <section className="manage-products">
         <div className="manage-top">
           <h1>Manage Products</h1>
-
-          <button onClick={() => setShowAddForm(!showAddForm)}>
-            + Add Product
-          </button>
         </div>
 
         <p>Edit, update and remove grocery products.</p>
+
+        <div className="add-panel">
+          <input
+            type="text"
+            placeholder="Product Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
+
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Image Path"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+          />
+
+          <button onClick={handleSubmit}>➕ Add Product</button>
+        </div>
 
         <div className="manage-grid">
           {products.map((product) => (
@@ -106,8 +156,6 @@ function ManageProducts() {
               <p>{product.category}</p>
 
               <h3>₹{product.price}</h3>
-
-              <h4>Stock: {product.quantity}</h4>
 
               <div className="manage-buttons">
                 <button
@@ -169,78 +217,19 @@ function ManageProducts() {
             />
 
             <input
-              type="number"
-              value={selectedProduct.quantity}
+              type="text"
+              placeholder="Image Path"
+              value={selectedProduct.image || ""}
               onChange={(e) =>
                 setSelectedProduct({
                   ...selectedProduct,
 
-                  quantity: e.target.value,
+                  image: e.target.value,
                 })
               }
             />
 
             <button onClick={updateProduct}>Update Product</button>
-          </div>
-        )}
-
-        {showAddForm && (
-          <div className="add-panel">
-            <h2>Add Product</h2>
-
-            <input
-              type="text"
-              placeholder="Product Name"
-              value={newProduct.name}
-              onChange={(e) =>
-                setNewProduct({
-                  ...newProduct,
-
-                  name: e.target.value,
-                })
-              }
-            />
-
-            <input
-              type="text"
-              placeholder="Category"
-              value={newProduct.category}
-              onChange={(e) =>
-                setNewProduct({
-                  ...newProduct,
-
-                  category: e.target.value,
-                })
-              }
-            />
-
-            <input
-              type="number"
-              placeholder="Price"
-              value={newProduct.price}
-              onChange={(e) =>
-                setNewProduct({
-                  ...newProduct,
-
-                  price: e.target.value,
-                })
-              }
-            />
-
-            <input
-              type="number"
-              placeholder="Quantity"
-              value={newProduct.quantity}
-              onChange={(e) =>
-                setNewProduct({
-                  ...newProduct,
-
-                  quantity: e.target.value,
-                })
-              }
-            />
-
-            <button onClick={addProduct}>Add Product</button>
           </div>
         )}
       </section>
