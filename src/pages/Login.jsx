@@ -8,7 +8,15 @@ import Footer from "../components/Footer";
 
 import { useNavigate } from "react-router-dom";
 
+import { useState } from "react";
+
+import api from "../services/api";
+
 function Login() {
+  const [email, setEmail] = useState("");
+
+  const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
 
   const googleLogin = async () => {
@@ -42,6 +50,34 @@ function Login() {
     }
   };
 
+  const manualLogin = async () => {
+    try {
+      const response = await api.post(
+        "/login",
+
+        {
+          email,
+
+          password,
+        },
+      );
+
+      localStorage.setItem(
+        "user",
+
+        JSON.stringify(response.data),
+      );
+
+      alert(`Welcome ${response.data.name}`);
+
+      window.location.href = "/";
+    } catch (error) {
+      alert("Invalid credentials");
+
+      console.log(error);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -62,11 +98,24 @@ function Login() {
 
           <div className="divider">OR</div>
 
-          <input type="email" placeholder="Email" />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <input type="password" placeholder="Password" />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-          <button>Login</button>
+          <button onClick={manualLogin}>Login</button>
+          <p>Don't have an account?</p>
+
+          <button onClick={() => navigate("/register")}>Create Account</button>
         </div>
       </section>
 

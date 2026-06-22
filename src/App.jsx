@@ -20,6 +20,8 @@ import Success from "./pages/Success";
 
 import { Navigate } from "react-router-dom";
 
+import Register from "./pages/Register";
+
 function ProtectedRoute({ children }) {
   const user = localStorage.getItem("user");
 
@@ -30,6 +32,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/register" element={<Register />} />
+
         <Route
           path="/"
           element={

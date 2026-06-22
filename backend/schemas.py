@@ -30,18 +30,18 @@ class UserCreate(BaseModel):
     password: str
 
 
+class UserLogin(BaseModel):
+
+    email: str
+
+    password: str
+
+
 class OrderCreate(BaseModel):
 
     customer: str
 
     total: int
-
-    status: str
-
-
-class OrderCreate(BaseModel):
-
-    customer: str
 
     phone: str
 
