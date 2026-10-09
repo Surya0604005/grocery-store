@@ -1,37 +1,24 @@
-import { Link } from "react-router-dom";
-
-import { useContext } from "react";
-
+import { Link, useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
 import { ProductContext } from "../context/ProductContext";
-
-import { useEffect, useState } from "react";
-
-import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const navigate = useNavigate();
+  const [user] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch {
+      return null;
+    }
+  });
 
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const loggedUser = JSON.parse(localStorage.getItem("user"));
-
-    setUser(loggedUser);
-  }, []);
+  const { wishlist, cart } = useContext(ProductContext);
 
   const logout = () => {
     localStorage.removeItem("user");
-
     navigate("/login");
-
     window.location.reload();
   };
-
-  const {
-    wishlist,
-
-    cart,
-  } = useContext(ProductContext);
 
   return (
     <nav className="navbar">
@@ -54,29 +41,31 @@ function Navbar() {
 
         <li>
           <Link to="/wishlist" className="nav-icon">
-            ❤️
-            <span>{wishlist.length}</span>
+            ❤️ <span>{wishlist?.length ?? 0}</span>
           </Link>
         </li>
 
         <li>
           <Link to="/cart" className="nav-icon">
-            🛒
-            <span>{cart.length}</span>
+            🛒 <span>{cart?.length ?? 0}</span>
           </Link>
         </li>
 
         <li>
           {user ? (
             <div className="profile-menu">
-              <img src={user.photo} alt="profile" className="profile-pic" />
+              {user.photo && (
+                <img src={user.photo} alt="Profile" className="profile-pic" />
+              )}
 
               <button className="logout-btn" onClick={logout}>
                 Logout
               </button>
             </div>
           ) : (
-            <Link to="/login">👤</Link>
+            <Link to="/login" aria-label="Login">
+              👤
+            </Link>
           )}
         </li>
       </ul>
